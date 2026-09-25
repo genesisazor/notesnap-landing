@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoteSnap — Your handwritten notes, digitally.</title>
+<meta name="description" content="NoteSnap turns your handwritten notes and lists into clean, editable text.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ color-scheme: light; }
+  *{ box-sizing: border-box; }
+  html, body{ margin: 0; }
+  img{ max-width: 100%; }
+
+  :root{
+    --cream:        #f7f1e4;
+    --cream-soft:   #fbf7ee;
+    --paper:        #fffdf8;
+    --ink:          #17263c;
+    --ink-soft:     #4d5b71;
+    --ink-faint:    #8c95a6;
+    --sky:          #e9f1fb;
+    --sky-line:     #d7e3f4;
+    --line:         #e6ddc9;
+    --accent:       #3d7cdb;
+    --accent-soft:  #cfe0f8;
+    --shadow:       0 24px 48px -20px rgba(23,38,60,.35);
+  }
+
+  body{
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    padding-inline: 24px;
+  }
+
+  h1,h2,h3{
+    font-family: "Manrope", "Inter", sans-serif;
+    color: var(--ink);
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  p{ margin: 0; }
+
+  .hand{
+    font-family: "Caveat", "Segoe Script", cursive;
+    font-weight: 600;
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin-inline: auto;
+  }
+
+  .band{
+    margin-inline: calc(-1 * min(24px, 4vw));
+    padding-inline: min(24px, 4vw);
+  }
+
+  a{ color: inherit; }
+
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 999px;
+    padding: 13px 22px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); }
+  .btn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-primary{ background: var(--ink); color: var(--paper); box-shadow: 0 14px 28px -12px rgba(23,38,60,.45); }
+  .btn-primary:hover{ box-shadow: 0 18px 32px -12px rgba(23,38,60,.5); }
+  .btn-light{ background: var(--paper); color: var(--ink); }
+  .btn-ghost{ background: transparent; color: var(--paper); border-color: rgba(255,255,255,.35); }
+
+  .icon{ width: 1em; height: 1em; }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 22px;
+  }
+  .brand{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "Manrope", sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-decoration: none;
+  }
+  .brand-mark{
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-tag{
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    padding-left: 4px;
+    border-left: 1px solid var(--line);
+    margin-left: 2px;
+  }
+  .nav-links{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .nav-links a{ text-decoration: none; }
+  .nav-links a:hover{ color: var(--ink); }
+  .nav-right{ display: flex; align-items: center; gap: 22px; }
+
+  @media (max-width: 720px){
+    .brand-tag, .nav-links{ display: none; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero-band{ background: var(--cream); }
+  .hero{
+    display: grid;
+    grid-template-columns: minmax(280px, 460px) 1fr;
+    gap: 48px;
+    align-items: center;
+    padding-block: 20px 56px;
+  }
+  .hero h1{ font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.08; }
+  .hero p.lede{
+    margin-top: 18px;
+    color: var(--ink-soft);
+    font-size: 1.08rem;
+    max-width: 46ch;
+  }
+  .hero-cta{ margin-top: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .avail{ font-size: 0.85rem; color: var(--ink-faint); }
+
+  @media (max-width: 880px){
+    .hero{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- HERO VISUAL ---------- */
+  .stage{
+    position: relative;
+    border-radius: 28px;
+    aspect-ratio: 4 / 3;
+    background:
+      radial-gradient(120% 140% at 85% 15%, #f3e3c8 0%, transparent 55%),
+      linear-gradient(155deg, #c99b6a 0%, #a97c4f 45%, #8c6440 100%);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .stage::before{
+    content: "";
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(100deg, rgba(0,0,0,.05) 0 2px, transparent 2px 34px);
+    opacity: .5;
+    mix-blend-mode: multiply;
+  }
+  .leaf{
+    position: absolute; top: 6%; right: 6%;
+    width: 76px; height: 76px;
+    opacity: .9;
+  }
+
+  .note-card{
+    position: absolute;
+    left: 7%; top: 14%;
+    width: 46%;
+    background: #fbfaf6;
+    border-radius: 2px 10px 10px 10px;
+    padding: 20px 18px;
+    transform: rotate(-7deg);
+    box-shadow: 0 18px 30px -14px rgba(30,20,5,.5);
+    clip-path: polygon(0% 4%, 6% 0%, 22% 3%, 38% 0%, 55% 3%, 71% 0%, 88% 3%, 100% 0%, 100% 100%, 0% 100%);
+  }
+  .note-card .hand{ font-size: 1.15rem; color: #2a3547; display:block; margin-bottom: 8px; }
+  .note-row{ display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+  .note-box{ width: 11px; height: 11px; border: 1.6px solid #3a4658; border-radius: 2px; flex-shrink: 0; transform: translateY(1px); }
+  .note-row span{ font-family: "Caveat", cursive; font-weight: 600; font-size: 1.05rem; color: #313d50; }
+
+  .pen{ position: absolute; left: 6%; bottom: 9%; width: 120px; opacity: .95; transform: rotate(8deg); }
+
+  .phone{
+    position: absolute;
+    right: 6%; bottom: 6%;
+    width: 46%;
+    max-width: 220px;
+    background: #101823;
+    border-radius: 30px;
+    padding: 7px;
+    box-shadow: 0 26px 44px -18px rgba(10,14,20,.55);
+  }
+  .phone-screen{
+    background: var(--paper);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-status{
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.62rem; font-weight: 600; color: var(--ink);
+    padding: 8px 14px 2px;
+  }
+  .phone-bar{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 12px 8px;
+    font-family: "Manrope", sans-serif; font-weight: 700; font-size: 0.72rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .phone-body{ padding: 10px 12px 12px; }
+  .phone-label{ font-size: 0.58rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); font-weight: 600; margin-bottom: 6px; }
+  .phone-item{ display: flex; align-items: center; gap: 7px; font-size: 0.66rem; color: var(--ink); padding: 3px 0; }
+  .phone-item .note-box{ width: 8px; height: 8px; border-width: 1.3px; }
+  .phone-actions{ display: flex; gap: 6px; margin-top: 10px; }
+  .phone-actions .pbtn{ flex: 1; text-align: center; font-size: 0.6rem; font-weight: 700; border-radius: 999px; padding: 6px 0; }
+  .pbtn-outline{ border: 1px solid var(--line); color: var(--ink-soft); }
+  .pbtn-solid{ background: var(--accent); color: #fff; }
+
+  /* ---------- FEATURES ---------- */
+  .features-band{ background: var(--cream-soft); }
+  .features{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 28px;
+    padding-block: 56px;
+  }
+  .feature{ text-align: center; }
+  .feature-icon{
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .feature-icon .icon{ width: 24px; height: 24px; }
+  .feature h3{ font-size: 1rem; font-weight: 700; }
+  .feature p{ margin-top: 6px; font-size: 0.87rem; color: var(--ink-soft); line-height: 1.5; }
+
+  @media (max-width: 900px){ .features{ grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px){ .features{ grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how-band{ background: var(--sky); }
+  .how{
+    display: grid;
+    grid-template-columns: minmax(220px, 320px) 1fr;
+    gap: 40px;
+    padding-block: 60px;
+    align-items: start;
+  }
+  .how-eyebrow{ font-size: 0.78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .how h2{ font-size: clamp(1.6rem, 3vw, 2.1rem); margin-top: 10px; line-height: 1.15; }
+  .how p.sub{ margin-top: 14px; color: var(--ink-soft); font-size: 0.98rem; max-width: 32ch; }
+
+  .steps{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 20px;
+  }
+  .step{ display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .mini-phone{
+    width: 100%;
+    max-width: 150px;
+    aspect-ratio: 9/17.5;
+    background: #101823;
+    border-radius: 20px;
+    padding: 6px;
+    box-shadow: 0 16px 28px -14px rgba(16,24,35,.4);
+    margin-bottom: 14px;
+  }
+  .mini-screen{
+    height: 100%;
+    background: var(--paper);
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .mini-topbar{
+    font-family: "Manrope", sans-serif; font-weight: 700; font-size: 0.56rem;
+    text-align: center; padding: 8px 4px 6px; border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .mini-body{ padding: 8px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .mini-row{ display: flex; align-items: center; gap: 5px; font-size: 0.52rem; color: var(--ink-soft); }
+  .mini-row .note-box{ width: 6px; height: 6px; border-width: 1.1px; }
+  .cam-frame{
+    flex: 1; margin: 6px; border-radius: 8px;
+    background: linear-gradient(155deg, #b98a58, #8c6440);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cam-note{ width: 62%; background: #fbfaf6; border-radius: 4px; padding: 6px; transform: rotate(-4deg); }
+  .cam-note .mini-row{ font-size: 0.44rem; }
+  .shutter{ width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; margin: 8px auto; }
+  .kbd{ margin-top: auto; background: var(--sky); padding: 6px; border-radius: 6px 6px 0 0; display: grid; grid-template-columns: repeat(8,1fr); gap: 3px; }
+  .kbd span{ background: var(--paper); border-radius: 2px; height: 10px; }
+  .step-num{
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Manrope", sans-serif; font-weight: 700; font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+  .step h3{ font-size: 0.95rem; font-weight: 700; }
+  .step p{ margin-top: 5px; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.45; }
+
+  @media (max-width: 880px){ .how{ grid-template-columns: 1fr; } }
+  @media (max-width: 640px){ .steps{ grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- BENEFITS ---------- */
+  .benefits-band{ background: var(--cream-soft); }
+  .benefits{
+    display: grid;
+    grid-template-columns: minmax(220px, 360px) 1fr;
+    gap: 40px;
+    padding-block: 60px;
+    align-items: center;
+  }
+  .benefits-eyebrow{ font-size: 0.78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .benefits h2{ font-size: clamp(1.6rem, 3vw, 2.1rem); margin-top: 10px; line-height: 1.15; }
+  .benefits p.sub{ margin-top: 14px; color: var(--ink-soft); font-size: 0.98rem; max-width: 34ch; }
+  .perks{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .perk{ text-align: center; }
+  .perk .icon{ width: 26px; height: 26px; color: var(--ink); }
+  .perk p{ margin-top: 10px; font-size: 0.82rem; color: var(--ink-soft); font-weight: 500; line-height: 1.4; }
+
+  @media (max-width: 880px){ .benefits{ grid-template-columns: 1fr; } }
+  @media (max-width: 520px){ .perks{ grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- FOOTER CTA ---------- */
+  .footer-band{ background: var(--ink); color: var(--paper); }
+  .footer{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding-block: 64px 52px;
+    overflow: hidden;
+  }
+  .footer .hand{ font-size: 1.8rem; color: #e7ecf4; opacity: .9; margin-bottom: 6px; }
+  .footer-brand{ display: flex; align-items: center; gap: 10px; font-family: "Manrope", sans-serif; font-weight: 800; font-size: 1.3rem; }
+  .footer-brand .brand-mark{ background: var(--paper); color: var(--ink); }
+  .footer-tag{ color: #aab6c8; font-size: 0.95rem; margin-top: 2px; }
+  .footer .avail{ color: #8b96aa; }
+  .doodle{ position: absolute; right: 4%; bottom: 6%; width: 170px; opacity: .3; }
+  @media (max-width: 700px){ .doodle{ display: none; } }
+
+  .foot-note{
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    padding-block: 18px;
+  }
+
+  /* ---------- SMALL-SCREEN HERO-VISUAL FIX (kept last to win the cascade) ---------- */
+  @media (max-width: 560px){
+    .stage{ aspect-ratio: 3 / 4; }
+    .note-card{ top: 9%; width: 50%; padding: 14px 12px; }
+    .note-card .hand{ font-size: 0.95rem; margin-bottom: 5px; }
+    .note-row{ margin-top: 4px; gap: 6px; }
+    .note-row span{ font-size: 0.82rem; }
+    .note-box{ width: 9px; height: 9px; }
+    .phone{ width: 46%; bottom: 4%; right: 5%; }
+    .pen{ width: 90px; bottom: 5%; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-mark" viewBox="0 0 24 24"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12h6M9 16h6M9 8h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.2-2h5.6L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 4c.6 3 2 4.4 5 5-3 .6-4.4 2-5 5-.6-3-2-4.4-5-5 3-.6 4.4-2 5-5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M18.5 15c.3 1.4.9 2 2.3 2.3-1.4.3-2 .9-2.3 2.3-.3-1.4-.9-2-2.3-2.3 1.4-.3 2-.9 2.3-2.3Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m14.5 6 3.5 3.5L9.5 18 6 18.5l.5-3.5L14.5 6Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 7.5 16.5 11" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="10" height="10" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15 9V6.6A1.6 1.6 0 0 0 13.4 5H6.6A1.6 1.6 0 0 0 5 6.6v6.8A1.6 1.6 0 0 0 6.6 15H9" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7.5 17.5a4 4 0 0 1-.5-8 5 5 0 0 1 9.7-1.6A3.6 3.6 0 0 1 17 17.5H7.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5.5a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5V7M7 7l.8 11.2A1.5 1.5 0 0 0 9.3 19.5h5.4a1.5 1.5 0 0 0 1.5-1.3L17 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 7a1 1 0 0 1 1-1h4l1.6 2H19a1 1 0 0 1 1 1v8.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m18.5 18.5-4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v4.3l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M6 18C4 10 10 4 18 6c2 8-4 14-12 12Z" fill="none" stroke="#fff" stroke-width="1.4" opacity=".8"/><path d="M6 18C10 14 13 11 17 7" stroke="#fff" stroke-width="1.2" opacity=".6"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 120 30"><path d="M4 26 100 6" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/><path d="M100 6 116 3l-6 13Z" fill="#1a1a1a"/><path d="M4 26 12 22" stroke="#c9a24a" stroke-width="7" stroke-linecap="round"/></symbol>
+  <symbol id="i-doodle" viewBox="0 0 180 140"><rect x="14" y="18" width="70" height="96" rx="4" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M28 40h42M28 54h42M28 68h30" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="140" cy="70" r="26" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M126 62h28v16a14 14 0 0 1-14 14h0a14 14 0 0 1-14-14Z" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M154 68c8-2 10 6 3 9" stroke="#fff" stroke-width="2.5" fill="none"/></symbol>
+</svg>
+
+<div class="wrap">
+
+  <nav class="nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark"><svg class="icon" style="width:18px;height:18px"><use href="#i-mark"/></svg></span>
+      NoteSnap
+      <span class="brand-tag">Your handwritten notes, digitally.</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#how">FAQ</a>
+      </div>
+      <a class="btn btn-primary" href="#get-started">Get Started</a>
+    </div>
+  </nav>
+
+  <section class="band hero-band" id="top">
+    <div class="hero">
+      <div>
+        <h1>Write it down.<br>We'll take it from here.</h1>
+        <p class="lede">NoteSnap turns your handwritten notes and lists into clean, editable text — so you can stay organized, find what you need, and get more done.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#get-started" style="font-size:1rem; padding:15px 26px;">
+            Get Started Free <svg class="icon"><use href="#i-arrow"/></svg>
+          </a>
+          <span class="avail" id="get-started">Available on iOS &amp; Android</span>
+        </div>
+      </div>
+
+      <div class="stage" aria-hidden="true">
+        <svg class="leaf" viewBox="0 0 24 24"><use href="#i-leaf"/></svg>
+
+        <div class="note-card">
+          <span class="hand">To Do:</span>
+          <div class="note-row"><span class="note-box"></span><span>Pick up groceries</span></div>
+          <div class="note-row"><span class="note-box"></span><span>Call mom</span></div>
+          <div class="note-row"><span class="note-box"></span><span>Finish project</span></div>
+          <div class="note-row"><span class="note-box"></span><span>Book dentist appt</span></div>
+          <div class="note-row"><span class="note-box"></span><span>Plan weekend trip</span></div>
+        </div>
+
+        <svg class="pen" viewBox="0 0 120 30"><use href="#i-pen"/></svg>
+
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>••••</span></div>
+            <div class="phone-bar"><span>‹</span><span>NoteSnap</span><span>⟳</span></div>
+            <div class="phone-body">
+              <div class="phone-label">Converted Text</div>
+              <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:.66rem; margin-bottom:4px;">To Do:</div>
+              <div class="phone-item"><span class="note-box"></span>Pick up groceries</div>
+              <div class="phone-item"><span class="note-box"></span>Call mom</div>
+              <div class="phone-item"><span class="note-box"></span>Finish project</div>
+              <div class="phone-item"><span class="note-box"></span>Book dentist appt</div>
+              <div class="phone-item"><span class="note-box"></span>Plan weekend trip</div>
+              <div class="phone-actions">
+                <span class="pbtn pbtn-outline">Copy</span>
+                <span class="pbtn pbtn-solid">Edit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band features-band" id="features">
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon"><svg class="icon"><use href="#i-camera"/></svg></div>
+        <h3>Snap or Upload</h3>
+        <p>Take a photo of your handwritten note or upload an existing image.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg class="icon"><use href="#i-sparkle"/></svg></div>
+        <h3>Smart Recognition</h3>
+        <p>Our app uses advanced OCR to convert your handwriting into text.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg class="icon"><use href="#i-pencil"/></svg></div>
+        <h3>Review &amp; Edit</h3>
+        <p>Make quick changes if needed, then get a clean, accurate version.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg class="icon"><use href="#i-copy"/></svg></div>
+        <h3>Copy &amp; Paste</h3>
+        <p>Easily copy your text into documents, emails, to-do lists, and more.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><svg class="icon"><use href="#i-cloud"/></svg></div>
+        <h3>Stay Organized</h3>
+        <p>Save your notes, search later, and keep everything in one place.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band how-band" id="how">
+    <div class="how">
+      <div>
+        <div class="how-eyebrow">How It Works</div>
+        <h2>From paper to digital in seconds.</h2>
+        <p class="sub">Turn your handwritten notes into editable text with just a few taps.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="mini-phone"><div class="mini-screen">
+            <div class="cam-frame">
+              <div class="cam-note">
+                <div class="mini-row" style="font-weight:700;">Groceries:</div>
+                <div class="mini-row">· Milk</div>
+                <div class="mini-row">· Eggs</div>
+                <div class="mini-row">· Bread</div>
+                <div class="mini-row">· Bananas</div>
+                <div class="mini-row">· Chicken</div>
+              </div>
+            </div>
+            <div class="shutter"></div>
+          </div></div>
+          <div class="step-num">1</div>
+          <h3>Capture</h3>
+          <p>Take a photo or upload your note.</p>
+        </div>
+
+        <div class="step">
+          <div class="mini-phone"><div class="mini-screen">
+            <div class="mini-topbar">NoteSnap</div>
+            <div class="mini-body">
+              <div class="mini-row" style="font-weight:700;">Groceries:</div>
+              <div class="mini-row">· Milk</div>
+              <div class="mini-row">· Eggs</div>
+              <div class="mini-row">· Bread</div>
+              <div class="mini-row">· Bananas</div>
+              <div class="mini-row">· Chicken</div>
+              <div class="phone-actions" style="margin-top:auto;">
+                <span class="pbtn pbtn-outline" style="font-size:.5rem;">Edit</span>
+                <span class="pbtn pbtn-solid" style="font-size:.5rem;">Copy</span>
+              </div>
+            </div>
+          </div></div>
+          <div class="step-num">2</div>
+          <h3>Convert</h3>
+          <p>Our app reads your handwriting and turns it into text.</p>
+        </div>
+
+        <div class="step">
+          <div class="mini-phone"><div class="mini-screen">
+            <div class="mini-topbar">Edit</div>
+            <div class="mini-body">
+              <div class="mini-row" style="font-weight:700;">Groceries:</div>
+              <div class="mini-row">· Milk</div>
+              <div class="mini-row">· Eggs</div>
+              <div class="mini-row">· Bread</div>
+              <div class="mini-row">· Bananas</div>
+              <div class="mini-row">· Chicken</div>
+              <div class="kbd">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div></div>
+          <div class="step-num">3</div>
+          <h3>Refine</h3>
+          <p>Make any changes before saving.</p>
+        </div>
+
+        <div class="step">
+          <div class="mini-phone"><div class="mini-screen">
+            <div class="mini-topbar">Copy to</div>
+            <div class="mini-body">
+              <div class="mini-row">▢ Clipboard</div>
+              <div class="mini-row">▢ Notes</div>
+              <div class="mini-row">▢ Email</div>
+              <div class="mini-row">▢ Google Docs</div>
+              <div class="mini-row">▢ Other Apps</div>
+            </div>
+          </div></div>
+          <div class="step-num">4</div>
+          <h3>Use Anywhere</h3>
+          <p>Paste it into your favorite apps and get it done.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band benefits-band" id="about">
+    <div class="benefits">
+      <div>
+        <div class="benefits-eyebrow">More Than Just Notes</div>
+        <h2>Less clutter. More focus.</h2>
+        <p class="sub">Keep the convenience of handwriting and get the organization of digital.</p>
+      </div>
+      <div class="perks">
+        <div class="perk"><svg class="icon"><use href="#i-trash"/></svg><p>No more lost notes</p></div>
+        <div class="perk"><svg class="icon"><use href="#i-folder"/></svg><p>Less physical clutter</p></div>
+        <div class="perk"><svg class="icon"><use href="#i-search"/></svg><p>Find what you need with search</p></div>
+        <div class="perk"><svg class="icon"><use href="#i-clock"/></svg><p>Save time and stay productive</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band footer-band">
+    <div class="footer">
+      <svg class="icon doodle" viewBox="0 0 180 140"><use href="#i-doodle"/></svg>
+      <span class="hand">Your ideas deserve a home.</span>
+      <div class="footer-brand">
+        <span class="brand-mark"><svg class="icon" style="width:18px;height:18px"><use href="#i-mark"/></svg></span>
+        NoteSnap
+      </div>
+      <p class="footer-tag">Handwritten notes. Digital freedom.</p>
+      <a class="btn btn-light" href="#get-started" style="margin-top:14px;">Get Started Free <svg class="icon"><use href="#i-arrow"/></svg></a>
+      <span class="avail" style="margin-top:2px;">Available on iOS &amp; Android</span>
+    </div>
+  </section>
+
+  <div class="foot-note">© 2026 NoteSnap. Made for people who still reach for a pen.</div>
+</div>
+</body>
+</html>
